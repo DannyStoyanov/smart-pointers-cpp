@@ -2,13 +2,14 @@
 #include <iostream>
 #include <memory>
 
+// Single object deleter version
 template <typename T>
 struct default_deleter { // functor or function object
 	void operator()(T* ptr) {
 		if(ptr!=nullptr) {
-			// ...
-			// std::cout<<"Custom deleter called!"<<std::endl;
-			// ...
+			// std::cout<<"dafault_deleter"<<std::endl;
+			// Direct delete on the pointer
+			// Here cannot be any custom cleanup
 			delete ptr;
 		}
 	}
@@ -187,3 +188,16 @@ template< class T, class... Args >
 unique_ptr<T> make_unique( Args&&... args ) {
 	return unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
+// Array deleter version
+template <typename T>
+struct default_deleter<T[]> { // functor or function object
+	void operator()(T* ptr) {
+		if(ptr!=nullptr) {
+			// std::cout<<"dafault_deleter []"<<std::endl;
+			// Direct delete on the pointer
+			// Here cannot be any custom cleanup
+			delete[] ptr;
+		}
+	}
+};
