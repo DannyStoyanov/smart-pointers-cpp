@@ -2,7 +2,19 @@
 #include <iostream>
 #include <memory>
 
-template<class T, class Deleter = std::default_delete<T>>
+template <typename T>
+struct default_deleter { // functor or function object
+	void operator()(T* ptr) {
+		if(ptr!=nullptr) {
+			// ...
+			// std::cout<<"Custom deleter called!"<<std::endl;
+			// ...
+			delete ptr;
+		}
+	}
+};
+
+template<class T, class Deleter = default_deleter<T>>
 class unique_ptr {
 private:
 	T* ptr;
@@ -45,8 +57,8 @@ public:
 template <class T, class Deleter>
 constexpr unique_ptr<T, Deleter>::unique_ptr() noexcept {
 	this->ptr = nullptr;
-	std::default_delete<T> obj;
-	this->del = obj; //std::default_delete<T>::default_delete()
+	default_deleter<T> obj;
+	this->del = obj;
 }
 
 template <class T, class Deleter>
@@ -55,8 +67,8 @@ constexpr unique_ptr<T, Deleter>::unique_ptr(std::nullptr_t) noexcept: unique_pt
 template <class T, class Deleter>
 unique_ptr<T, Deleter>::unique_ptr(T* ptr) noexcept {
 	this->ptr = ptr;
-	std::default_delete<T> obj;
-	this->del = obj; //std::default_delete<T>::default_delete()
+	default_deleter<T> obj;
+	this->del = obj;
 }
 
 template <class T, class Deleter>
@@ -175,3 +187,4 @@ template< class T, class... Args >
 unique_ptr<T> make_unique( Args&&... args ) {
 	return unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
